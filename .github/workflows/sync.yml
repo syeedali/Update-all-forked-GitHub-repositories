@@ -1,9 +1,9 @@
 name: Sync All Forks Safely
 
 on:
-  workflow_dispatch: # Allows you to run it manually with a button click
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' # Runs automatically every day at midnight UTC
+    - cron: '0 0 * * *'
 
 jobs:
   sync:
@@ -13,16 +13,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
-          # Fetch up to 200 fork repositories and loop through them
           gh repo list --fork --limit 200 --json nameWithOwner -q '.[].nameWithOwner' | while read -r repo; do
               echo "----------------------------------------"
               echo "Processing $repo..."
               
-              # 1. Force-disable all workflows on this fork to ensure nothing runs
               echo "Disabling workflows for safety..."
-              gh api -X PUT "/repos/$repo/actions/permissions" -f "enabled=false" || echo "Note: Could not explicitly disable actions (might already be off)"
+              gh api -X PUT "/repos/$repo/actions/permissions" --input - <<< '{"enabled": false}' || echo "Note: Skipping security toggle"
               
-              # 2. Sync the fork with the upstream repository
               echo "Syncing changes..."
-              gh repo sync "$repo" || echo "Failed to sync $repo (might have no changes or conflicts)"
+              gh repo sync "$repo" || echo "Failed to sync $repo"
           done
