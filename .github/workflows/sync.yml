@@ -16,5 +16,5 @@ jobs:
           # Fetch up to 200 fork repositories and loop through them
           gh repo list --fork --limit 200 --json nameWithOwner -q '.[].nameWithOwner' | while read -r repo; do
               echo "Syncing $repo..."
-              gh repo sync "$repo" || echo "Failed to sync $repo (might have no changes or conflicts)"
+              gh repo sync --force "$repo" || echo "Failed to sync $repo (might have no changes or conflicts)"
           done
