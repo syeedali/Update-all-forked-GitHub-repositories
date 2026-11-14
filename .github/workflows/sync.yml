@@ -15,7 +15,7 @@ jobs:
         run: |
           gh repo list --fork --limit 200 --json nameWithOwner -q '.[].nameWithOwner' | while read -r repo; do
               echo "----------------------------------------"
-              echo "Processing $repo..."
+              echo "Processing http://${repo}"
               
               echo "Disabling workflows for safety..."
               gh api -X PUT "/repos/$repo/actions/permissions" --input - <<< '{"enabled": false}' || echo "Note: Skipping security toggle"
